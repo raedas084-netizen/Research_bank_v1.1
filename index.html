@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>عقل الأفكار | Mind Bank</title>
+  <meta name="theme-color" content="#05070E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <!-- مكتبة Vis.js للخرائط والشبكات التفاعلية -->
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { background-color: #05070E; color: #E2E8F0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    
+    header { background: #0B1020; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.15rem; color: #2BD9C8; font-weight: bold; }
+    header p { font-size: 0.75rem; color: #94A3B8; }
+    
+    nav { display: flex; background: #0B1020; border-top: 1px solid rgba(255,255,255,0.08); }
+    nav button { flex: 1; padding: 14px 8px; background: none; border: none; color: #94A3B8; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    nav button.active { color: #2BD9C8; border-top: 2px solid #2BD9C8; background: rgba(43,217,200,0.05); }
+    
+    main { flex: 1; position: relative; overflow-y: auto; }
+    .tab-content { display: none; height: 100%; padding: 16px; }
+    .tab-content.active { display: block; }
+    
+    #network-container { width: 100%; height: 100%; background: #05070E; }
+    
+    .card { background: #0B1020; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+    .card-title { font-size: 0.95rem; font-weight: bold; margin-bottom: 6px; color: #F8FAFC; }
+    .card-sub { font-size: 0.75rem; color: #94A3B8; }
+    
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; text-align: center; }
+    .stat-box { background: #0B1020; border: 1px solid rgba(43,217,200,0.25); border-radius: 12px; padding: 12px 8px; }
+    .stat-num { font-size: 1.5rem; font-weight: bold; color: #2BD9C8; }
+    .stat-label { font-size: 0.7rem; color: #94A3B8; margin-top: 4px; }
+    
+    form label { display: block; font-size: 0.8rem; color: #94A3B8; margin: 14px 0 6px; }
+    form input, form select { width: 100%; padding: 12px 14px; background: #0B1020; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #fff; font-size: 0.9rem; outline: none; }
+    form input:focus, form select:focus { border-color: #2BD9C8; }
+    form button { width: 100%; padding: 14px; background: #2BD9C8; color: #05070E; border: none; border-radius: 10px; font-weight: bold; margin-top: 24px; font-size: 0.95rem; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>عقل الأفكار | Mind Bank</h1>
+      <p>بنك أفكار رائد الحمدان</p>
+    </div>
+    <div style="font-size: 0.75rem; color: #2BD9C8; background: rgba(43,217,200,0.1); padding: 4px 8px; border-radius: 6px;">PWA تفاعلي</div>
+  </header>
+
+  <main>
+    <!-- Tab 1: Dashboard -->
+    <div id="tab-dash" class="tab-content active">
+      <div class="stats-grid">
+        <div class="stat-box"><div class="stat-num" id="total-ideas">0</div><div class="stat-label">إجمالي الأفكار</div></div>
+        <div class="stat-box"><div class="stat-num" id="total-domains">0</div><div class="stat-label">المجالات</div></div>
+        <div class="stat-box"><div class="stat-num" id="top-score">0%</div><div class="stat-label">أعلى أولوية</div></div>
+      </div>
+      <h3 style="font-size: 0.9rem; color: #2BD9C8; margin-bottom: 12px;">قائمة الأفكار المسجلة</h3>
+      <div id="ideas-list"></div>
+    </div>
+
+    <!-- Tab 2: Interactive Mind Map -->
+    <div id="tab-map" class="tab-content" style="padding: 0;">
+      <div id="network-container"></div>
+    </div>
+
+    <!-- Tab 3: Add Idea -->
+    <div id="tab-add" class="tab-content">
+      <form id="idea-form">
+        <label>عنوان الفكرة</label>
+        <input type="text" id="idea-title" placeholder="أدخل عنوان الفكرة هنا..." required>
+        
+        <label>المجال</label>
+        <select id="idea-domain">
+          <option value="ذكاء اصطناعي">ذكاء اصطناعي</option>
+          <option value="أمن">أمن</option>
+          <option value="بيئة العمل">بيئة العمل</option>
+          <option value="إدارة ومالية">إدارة ومالية</option>
+          <option value="تحسين الإجراءات">تحسين الإجراءات</option>
+          <option value="الأنظمة الإلكترونية">الأنظمة الإلكترونية</option>
+        </select>
+
+        <label>درجة الأولوية / التقييم (1 إلى 5)</label>
+        <input type="number" id="idea-impact" min="1" max="5" value="4">
+
+        <button type="submit">حفظ الفكرة في العقل التفاعلي</button>
+      </form>
+    </div>
+  </main>
+
+  <nav>
+    <button class="active" onclick="switchTab('dash', this)">الرئيسية</button>
+    <button onclick="switchTab('map', this)">خريطة العقل</button>
+    <button onclick="switchTab('add', this)">إضافة فكرة</button>
+  </nav>
+
+  <script>
+    const defaultIdeas = [
+      { id: 1, title: 'مساعد ذكي لصياغة المخاطبات الرسمية', domain: 'ذكاء اصطناعي', impact: 5 },
+      { id: 2, title: 'ضبط المخالفين بوسيلة أقل خطورة', domain: 'أمن', impact: 5 },
+      { id: 3, title: 'مؤشر جاهزية بيئة العمل', domain: 'بيئة العمل', impact: 4 },
+      { id: 4, title: 'أتمتة دورة الاعتماد الإداري', domain: 'تحسين الإجراءات', impact: 5 },
+      { id: 5, title: 'لوحة متابعة المصروفات التشغيلية', domain: 'إدارة ومالية', impact: 4 }
+    ];
+
+    let ideas = JSON.parse(localStorage.getItem('mind_bank_ideas')) || defaultIdeas;
+    let network = null;
+
+    function saveIdeas() {
+      localStorage.setItem('mind_bank_ideas', JSON.stringify(ideas));
+      renderDashboard();
+    }
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+      btn.classList.add('active');
+      if (tabId === 'map') setTimeout(initNetwork, 50);
+    }
+
+    function renderDashboard() {
+      document.getElementById('total-ideas').innerText = ideas.length;
+      document.getElementById('total-domains').innerText = new Set(ideas.map(i => i.domain)).size;
+      const maxImpact = ideas.length ? Math.max(...ideas.map(i => i.impact * 20)) : 0;
+      document.getElementById('top-score').innerText = maxImpact + '%';
+
+      const listEl = document.getElementById('ideas-list');
+      listEl.innerHTML = ideas.map(item => `
+        <div class="card">
+          <div class="card-title">${item.title}</div>
+          <div class="card-sub">المجال: ${item.domain} · مستوى التقييم: ${item.impact * 20}%</div>
+        </div>
+      `).join('');
+    }
+
+    function initNetwork() {
+      const container = document.getElementById('network-container');
+      const nodes = [{ id: 'center', label: 'عقل الأفكار', color: '#2BD9C8', shape: 'circle', font: { color: '#05070E', bold: true, size: 16 } }];
+      const edges = [];
+
+      const domains = [...new Set(ideas.map(i => i.domain))];
+      domains.forEach(d => {
+        nodes.push({ id: d, label: d, color: '#9B8BE8', shape: 'box', font: { color: '#ffffff', size: 14 } });
+        edges.push({ from: 'center', to: d, color: { color: '#9B8BE8' }, width: 2 });
+      });
+
+      ideas.forEach(idea => {
+        nodes.push({ id: 'idea-' + idea.id, label: idea.title, color: '#0B1020', shape: 'ellipse', font: { color: '#E2E8F0', size: 12 } });
+        edges.push({ from: idea.domain, to: 'idea-' + idea.id, color: { color: 'rgba(255,255,255,0.15)' } });
+      });
+
+      const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+      const options = {
+        physics: { solver: 'forceAtlas2Based', forceAtlas2Based: { springLength: 70, gravitationalConstant: -30 } },
+        interaction: { zoomView: true, dragNodes: true, hover: true }
+      };
+
+      if (network) network.destroy();
+      network = new vis.Network(container, data, options);
+    }
+
+    document.getElementById('idea-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('idea-title').value;
+      const domain = document.getElementById('idea-domain').value;
+      const impact = parseInt(document.getElementById('idea-impact').value);
+
+      ideas.push({ id: Date.now(), title, domain, impact });
+      saveIdeas();
+      document.getElementById('idea-form').reset();
+      switchTab('dash', document.querySelector('nav button'));
+    });
+
+    renderDashboard();
+  </script>
+</body>
+</html>
