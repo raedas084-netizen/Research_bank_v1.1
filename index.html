@@ -5,43 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>عقل الأفكار | Mind Bank</title>
   <meta name="theme-color" content="#05070E">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  
-  <!-- مكتبة Vis.js للخرائط والشبكات التفاعلية -->
   <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
   
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; }
-    body { background-color: #05070E; color: #E2E8F0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: #05070E; color: #E2E8F0; display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
     
-    header { background: #0B1020; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; }
-    header h1 { font-size: 1.15rem; color: #2BD9C8; font-weight: bold; }
-    header p { font-size: 0.75rem; color: #94A3B8; }
+    header { background: #0B1020; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    header h1 { font-size: 1.1rem; color: #2BD9C8; font-weight: bold; }
+    header p { font-size: 0.72rem; color: #94A3B8; }
     
-    nav { display: flex; background: #0B1020; border-top: 1px solid rgba(255,255,255,0.08); }
-    nav button { flex: 1; padding: 14px 8px; background: none; border: none; color: #94A3B8; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-    nav button.active { color: #2BD9C8; border-top: 2px solid #2BD9C8; background: rgba(43,217,200,0.05); }
-    
-    main { flex: 1; position: relative; overflow-y: auto; }
+    main { flex: 1; position: relative; overflow-y: auto; padding-bottom: 75px; }
     .tab-content { display: none; height: 100%; padding: 16px; }
     .tab-content.active { display: block; }
     
-    #network-container { width: 100%; height: 100%; background: #05070E; }
+    #network-container { width: 100%; height: calc(100dvh - 130px); background: #05070E; }
     
-    .card { background: #0B1020; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-    .card-title { font-size: 0.95rem; font-weight: bold; margin-bottom: 6px; color: #F8FAFC; }
+    .card { background: #0B1020; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .card-title { font-size: 0.95rem; font-weight: bold; color: #F8FAFC; margin-bottom: 4px; }
     .card-sub { font-size: 0.75rem; color: #94A3B8; }
+    .delete-btn { background: rgba(239, 68, 68, 0.2); color: #EF4444; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; }
     
-    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; text-align: center; }
-    .stat-box { background: #0B1020; border: 1px solid rgba(43,217,200,0.25); border-radius: 12px; padding: 12px 8px; }
-    .stat-num { font-size: 1.5rem; font-weight: bold; color: #2BD9C8; }
-    .stat-label { font-size: 0.7rem; color: #94A3B8; margin-top: 4px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; text-align: center; }
+    .stat-box { background: #0B1020; border: 1px solid rgba(43,217,200,0.25); border-radius: 10px; padding: 10px 6px; }
+    .stat-num { font-size: 1.3rem; font-weight: bold; color: #2BD9C8; }
+    .stat-label { font-size: 0.68rem; color: #94A3B8; margin-top: 2px; }
     
-    form label { display: block; font-size: 0.8rem; color: #94A3B8; margin: 14px 0 6px; }
-    form input, form select { width: 100%; padding: 12px 14px; background: #0B1020; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #fff; font-size: 0.9rem; outline: none; }
-    form input:focus, form select:focus { border-color: #2BD9C8; }
-    form button { width: 100%; padding: 14px; background: #2BD9C8; color: #05070E; border: none; border-radius: 10px; font-weight: bold; margin-top: 24px; font-size: 0.95rem; cursor: pointer; }
+    form label { display: block; font-size: 0.8rem; color: #94A3B8; margin: 12px 0 4px; }
+    form input, form select { width: 100%; padding: 12px; background: #0B1020; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; font-size: 0.9rem; }
+    form button { width: 100%; padding: 14px; background: #2BD9C8; color: #05070E; border: none; border-radius: 8px; font-weight: bold; margin-top: 20px; font-size: 0.95rem; }
+
+    /* شريط التنقل الثابت في أسفل الشاشة */
+    nav { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: #0B1020; border-top: 1px solid rgba(255,255,255,0.12); display: flex; z-index: 9999; }
+    nav button { flex: 1; padding: 10px; background: none; border: none; color: #94A3B8; font-size: 0.85rem; font-weight: bold; cursor: pointer; }
+    nav button.active { color: #2BD9C8; background: rgba(43,217,200,0.08); border-top: 3px solid #2BD9C8; }
   </style>
 </head>
 <body>
@@ -51,7 +48,7 @@
       <h1>عقل الأفكار | Mind Bank</h1>
       <p>بنك أفكار رائد الحمدان</p>
     </div>
-    <div style="font-size: 0.75rem; color: #2BD9C8; background: rgba(43,217,200,0.1); padding: 4px 8px; border-radius: 6px;">PWA تفاعلي</div>
+    <div style="font-size: 0.7rem; color: #2BD9C8; background: rgba(43,217,200,0.1); padding: 4px 8px; border-radius: 6px;">تفاعلي</div>
   </header>
 
   <main>
@@ -62,7 +59,7 @@
         <div class="stat-box"><div class="stat-num" id="total-domains">0</div><div class="stat-label">المجالات</div></div>
         <div class="stat-box"><div class="stat-num" id="top-score">0%</div><div class="stat-label">أعلى أولوية</div></div>
       </div>
-      <h3 style="font-size: 0.9rem; color: #2BD9C8; margin-bottom: 12px;">قائمة الأفكار المسجلة</h3>
+      <h3 style="font-size: 0.85rem; color: #2BD9C8; margin-bottom: 10px;">الأفكار المسجلة (اضغط "خريطة العقل" بالأسفل لاستعراض الشبكة)</h3>
       <div id="ideas-list"></div>
     </div>
 
@@ -75,7 +72,7 @@
     <div id="tab-add" class="tab-content">
       <form id="idea-form">
         <label>عنوان الفكرة</label>
-        <input type="text" id="idea-title" placeholder="أدخل عنوان الفكرة هنا..." required>
+        <input type="text" id="idea-title" placeholder="أدخل عنوان الفكرة..." required>
         
         <label>المجال</label>
         <select id="idea-domain">
@@ -84,21 +81,21 @@
           <option value="بيئة العمل">بيئة العمل</option>
           <option value="إدارة ومالية">إدارة ومالية</option>
           <option value="تحسين الإجراءات">تحسين الإجراءات</option>
-          <option value="الأنظمة الإلكترونية">الأنظمة الإلكترونية</option>
         </select>
 
-        <label>درجة الأولوية / التقييم (1 إلى 5)</label>
+        <label>درجة الأولوية (1 - 5)</label>
         <input type="number" id="idea-impact" min="1" max="5" value="4">
 
-        <button type="submit">حفظ الفكرة في العقل التفاعلي</button>
+        <button type="submit">إضافة إلى الخريطة الذهنية</button>
       </form>
     </div>
   </main>
 
+  <!-- Navigation Bar -->
   <nav>
     <button class="active" onclick="switchTab('dash', this)">الرئيسية</button>
-    <button onclick="switchTab('map', this)">خريطة العقل</button>
-    <button onclick="switchTab('add', this)">إضافة فكرة</button>
+    <button onclick="switchTab('map', this)">خريطة العقل 🕸️</button>
+    <button onclick="switchTab('add', this)">+ إضافة فكرة</button>
   </nav>
 
   <script>
@@ -106,8 +103,7 @@
       { id: 1, title: 'مساعد ذكي لصياغة المخاطبات الرسمية', domain: 'ذكاء اصطناعي', impact: 5 },
       { id: 2, title: 'ضبط المخالفين بوسيلة أقل خطورة', domain: 'أمن', impact: 5 },
       { id: 3, title: 'مؤشر جاهزية بيئة العمل', domain: 'بيئة العمل', impact: 4 },
-      { id: 4, title: 'أتمتة دورة الاعتماد الإداري', domain: 'تحسين الإجراءات', impact: 5 },
-      { id: 5, title: 'لوحة متابعة المصروفات التشغيلية', domain: 'إدارة ومالية', impact: 4 }
+      { id: 4, title: 'أتمتة دورة الاعتماد الإداري', domain: 'تحسين الإجراءات', impact: 5 }
     ];
 
     let ideas = JSON.parse(localStorage.getItem('mind_bank_ideas')) || defaultIdeas;
@@ -116,6 +112,11 @@
     function saveIdeas() {
       localStorage.setItem('mind_bank_ideas', JSON.stringify(ideas));
       renderDashboard();
+    }
+
+    function deleteIdea(id) {
+      ideas = ideas.filter(i => i.id !== id);
+      saveIdeas();
     }
 
     function switchTab(tabId, btn) {
@@ -135,8 +136,11 @@
       const listEl = document.getElementById('ideas-list');
       listEl.innerHTML = ideas.map(item => `
         <div class="card">
-          <div class="card-title">${item.title}</div>
-          <div class="card-sub">المجال: ${item.domain} · مستوى التقييم: ${item.impact * 20}%</div>
+          <div>
+            <div class="card-title">${item.title}</div>
+            <div class="card-sub">${item.domain} · أولوية: ${item.impact * 20}%</div>
+          </div>
+          <button class="delete-btn" onclick="deleteIdea(${item.id})">حذف</button>
         </div>
       `).join('');
     }
@@ -148,19 +152,19 @@
 
       const domains = [...new Set(ideas.map(i => i.domain))];
       domains.forEach(d => {
-        nodes.push({ id: d, label: d, color: '#9B8BE8', shape: 'box', font: { color: '#ffffff', size: 14 } });
+        nodes.push({ id: d, label: d, color: '#9B8BE8', shape: 'box', font: { color: '#ffffff' } });
         edges.push({ from: 'center', to: d, color: { color: '#9B8BE8' }, width: 2 });
       });
 
       ideas.forEach(idea => {
-        nodes.push({ id: 'idea-' + idea.id, label: idea.title, color: '#0B1020', shape: 'ellipse', font: { color: '#E2E8F0', size: 12 } });
-        edges.push({ from: idea.domain, to: 'idea-' + idea.id, color: { color: 'rgba(255,255,255,0.15)' } });
+        nodes.push({ id: 'idea-' + idea.id, label: idea.title, color: '#0B1020', shape: 'ellipse', font: { color: '#E2E8F0' } });
+        edges.push({ from: idea.domain, to: 'idea-' + idea.id, color: { color: 'rgba(255,255,255,0.2)' } });
       });
 
       const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
       const options = {
-        physics: { solver: 'forceAtlas2Based', forceAtlas2Based: { springLength: 70, gravitationalConstant: -30 } },
-        interaction: { zoomView: true, dragNodes: true, hover: true }
+        physics: { solver: 'forceAtlas2Based', forceAtlas2Based: { springLength: 80 } },
+        interaction: { zoomView: true, dragNodes: true }
       };
 
       if (network) network.destroy();
@@ -176,7 +180,7 @@
       ideas.push({ id: Date.now(), title, domain, impact });
       saveIdeas();
       document.getElementById('idea-form').reset();
-      switchTab('dash', document.querySelector('nav button'));
+      switchTab('dash', document.querySelectorAll('nav button')[0]);
     });
 
     renderDashboard();
